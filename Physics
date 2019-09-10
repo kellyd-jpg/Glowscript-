@@ -1,0 +1,41 @@
+GlowScript 2.7 VPython
+scene.width =800
+scene.height =800
+
+#CONSTANTS
+G = 6.7e-11
+mEarth = 6e24
+mcraft =15e3
+mMoon=7e22
+deltat =10
+pscale=0.75
+
+#OBJECTS AND INITIAL VALUES
+Earth = sphere(pos=vec(0,0,0),radius=6.4e6, color=color.cyan) 
+craft= sphere(pos=vec(-10*Earth.radius,0,0), radius=1e6, color=color.yellow, make_trail=True)
+vcraft = vec(0,3.27e3,0)
+pcraft = mcraft*vcraft
+Moon=sphere(pos=vec(4e8,0,0),radius=1.75e6, color=color.white)
+t=0
+
+#CALCULATION LOOP: ALL REPEATED CALCULATIONS GO INSIDE THE LOOP
+while t < 10*365*24*60*60:
+    rate(9000)                  
+    r=craft.pos-Earth.pos
+    rmag2=mag2(r)
+    rhat=hat(r)
+    Fmag= G*mcraft*mEarth/rmag2
+    FEarth=-Fmag*rhat
+    
+    r=craft.pos-Moon.pos
+    rmag2=mag2(r)
+    rhat=hat(r)
+    Fmag= G*mcraft*mMoon/rmag2
+    FMoon=-Fmag*rhat
+    Fnet=FEarth+FMoon
+    
+    pcraft=pcraft + Fnet*deltat
+    craft.pos = craft.pos + (pcraft/mcraft)*deltat
+    t = t+deltat
+    if mag(r) < Earth.radius:
+        break
