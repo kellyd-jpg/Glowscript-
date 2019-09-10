@@ -1,0 +1,45 @@
+GlowScript 2.7 VPython
+
+from visual.graph import * # import graphing module
+scene.y = 400 # move scene below graph
+
+scene.width=600
+scene.height = 760
+
+## constants and data
+g = 9.8
+mball = 0.1       ## change this to the appropriate mass (in kg) from your mass-spring experiment.
+L0 = 0.26       ## this is an approximate relaxed length of your spring in meters measured in lab.
+ks = 7          ## change this to the spring stiffness you measured (in N/m)
+deltat = .01  
+
+t = 0           ## start counting time at zero
+## objects
+ceiling = box(pos=vec(0,0,0), size = vec(0.2, 0.01, 0.2))             ## origin is at ceiling
+# Specifying make_trail=True causes a trail to be left behind the moving ball:
+ball = sphere(pos=vec(0,-0.3,0), radius=0.025, color=color.orange, make_trail=True) ## note: spring initially compressed
+spring = helix(pos=ceiling.pos, axis=ball.pos-ceiling.pos, color=color.cyan, thickness=.003, coils=40, radius=0.015) ## change the color to be your spring color
+L=ball.pos 
+ygraph = gcurve(color=color.yellow)
+
+## initial values
+pball = mball*vector(0,0,0)
+Fgrav = mball*g*vector(0,-1,0)
+Fspring=-ks*(mag(L)-L0)*hat(L)
+
+## improve the display
+scene.autoscale = False          ## don't let camera zoom in and out as ball moves
+scene.center = vector(0,-L0,0)   ## move camera down to improve display visibility
+scene.waitfor("click",wait)
+
+## calculation loop
+while t < 2:
+    rate(100)
+    Fspring=-ks*(mag(L)-L0)*hat(L)
+    Fnet = Fgrav+Fspring
+    pball = pball + Fnet*deltat
+    ball.pos = ball.pos + pball/mball*deltat
+    spring.axis = ball.pos - ceiling.pos
+    L=ball.pos
+    t = t + deltat
+    ygraph.plot(pos=(t, ball.pos.y))
